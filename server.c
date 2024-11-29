@@ -7,7 +7,10 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+#include <errno.h>
+
 #define BACKLOG 10
+#define BUFFER_SIZE 1024
 
 int main(void) {
     int sockfd, new_fd;
@@ -15,8 +18,9 @@ int main(void) {
     struct addrinfo hints, *res, *rp;
     struct sockaddr_storage client_addr;
 
-    const char *msg = "Yeehaw it works\n";
-    int len, bytes_sent;
+    const char *response = "Yeehaw it works\n";
+    char request[BUFFER_SIZE] = {0};
+    int len, bytes_received, bytes_sent;
 
     // Get address to bind to
     memset(&hints, 0, sizeof hints);
@@ -55,9 +59,19 @@ int main(void) {
     addrlen = sizeof client_addr;
     new_fd = accept(sockfd, (struct sockaddr *)&client_addr, &addrlen);
 
-    // Send a message back to the client
-    len = strlen(msg);
-    bytes_sent = send(new_fd, msg, len, 0);
+    // Receive a message
+    bytes_received = recv(new_fd, request, BUFFER_SIZE, 0);
+    if (bytes_received == -1) {
+        printf("Error receiving message: %s\n", strerror(errno));
+    } else {
+        printf("Bytes received from client: %d\n", bytes_received);
+        printf("Message received: %s", request);
+    }
 
+    // Send a message back to the client
+    len = strlen(response);
+    bytes_sent = send(new_fd, response, len, 0);
+
+    close(sockfd);
     close(new_fd);
 }
