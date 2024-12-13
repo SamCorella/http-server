@@ -12,6 +12,17 @@
 #define BACKLOG 10
 #define BUFFER_SIZE 1024
 
+struct http_request {
+    char *method;
+    char *path;
+    char *version;
+    char *body;
+};
+
+int parse_http(char *msg, struct http_request *hr) {
+    return 0;
+}
+
 int main(void) {
     int sockfd, new_fd;
     socklen_t addrlen;
@@ -67,6 +78,8 @@ int main(void) {
         printf("Bytes received from client: %d\n", bytes_received);
         printf("Message received: %s", request);
     }
+
+    //parse_http();
 
     // Send a message back to the client
     len = strlen(response);
